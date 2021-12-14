@@ -1,0 +1,17 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center  w-100">
+        <div class="col-sm-4 justify-content-center  ml-4 text-center">
+            <img class="img-fluid " src="{% static 'images/fitnesstracker.svg' %}" alt="">
+            <h2 style="color: #4d13d1;">FitnessTracker</h2>
+            <small style="color: #4d13d1;"> Schedule your workout and diet, and keep a track of it. </small><hr>
+            <a href="{% url 'login' %}"><button type="submit" class="btn btn-success">Login</button></a>
+            <a href="{% url 'signup' %}"><button type="submit" class="btn btn-danger">SignUp</button></a>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}

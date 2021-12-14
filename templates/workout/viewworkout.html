@@ -1,0 +1,215 @@
+{% extends "workout/base.html" %}
+{% block content %}
+
+{% for message in messages %}
+{% if message.tags == 'info' %}
+<script>
+    window.onload = function () {
+        alert('{{message}}')
+    }
+</script>
+{% endif %}
+{% endfor %}
+
+{% if user.is_authenticated %}
+<nav class="navbar sticky-top navbar-expand-lg navbar-dark" style="background-color: #4d13d1;">
+    <div class="container-fluid text-white">
+        <span class="navbar-brand mb-0 h1 text-white">FitnessTracker</span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+
+            <li class="nav-item">
+                <a class="nav-link active" href="">Workouts</a>
+            </li>
+            <a class="nav-item nav-link " href="{% url 'diet' %}">Diet</a>
+            <a class="nav-item nav-link" href="{% url 'bmi' %}">BMI</a>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    {{user.username}}
+                </a>
+                <div class="dropdown-menu dropdown-menu-sm-right" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{% url 'logout' %}"
+                        onclick="return confirm('Are you sure you want to logout!')">Logout</a>
+                    <a class="dropdown-item" href="{% url 'change_password' %}">Update Password</a>
+                </div>
+            </li>
+
+        </div>
+    </div>
+</nav>
+{% else %}
+<nav class="navbar sticky-top navbar-expand justify-content-center navbar-light bg-dark mb-5">
+    <span class="navbar-brand mb-0 h1 text-primary">FitnessTracker</span>
+</nav>
+{% endif %}
+
+<section class="no-padding-bottom">
+    <div class="container-fluid ">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card shadow text-dark text-center bg-white my-1">
+                    <h4 class="card-title text-center text-white text-uppercase" style="background-color: #4d13d1;">
+                        {{workout.name}}</h4>
+                    <div class="card-body">
+                        <p class="card-text">Description: {{workout.description}} </p>
+                        <h6 class="card-subtitle mb-2 text-muted">Date: {{workout.created_at | date }}</h6>
+
+                        {% if workout.completed == True %}
+                        <p class="card-text text-dark">Status:
+                            <small class="text-success">COMPLETED</small>
+                        </p>
+                        {% endif %}
+                        {% if workout.completed == False %}
+                        <p class="card-text text-dark">Status:
+                            <small class="text-danger">NOT COMPLETED</small>
+                        </p>
+                        {% endif %}
+                        <p class="card-text text-center">
+                            {% if workout.completed == False %}
+                            <a href="{% url 'endworkout' id=workout.id %}"
+                                onclick="return confirm('end this Workout ?')" class="btn btn-success">End Workout
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'deleteworkout' id=workout.id %}"
+                                onclick="return confirm('Delete this Workout ?')" class="btn btn-danger">Delete Workout
+                            </a>
+                        </p>
+                    </div>
+                </div>
+
+
+                <!-- Add Exercise -->
+                <div class="container-fluid mt-2">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            {% if workout.completed == False %}
+                            <div class="card shadow add-exercise mb-2" style="background-color: #4d13d1;">
+                                <div class="card-body">
+                                    <form id="exercise-form" class="" action="/workout/{{ workout.id }}/exercise"
+                                        method="POST">
+                                        {% csrf_token %}
+                                        <input id="name" type="text" name="name" required class="form-control mb-2"
+                                            placeholder="Exercise">
+                                        <input id="weight" type="number" min="0.00" step="0.5" name="weight"
+                                            class="form-control mb-2" placeholder="Weight (Kgs)">
+                                        <input id="sets" type="number" min="1" step="1" name="sets"
+                                            class="form-control mb-2" placeholder="Set number">
+                                        <input id="repetitions" type="number" min="0" step="1" name="repetitions"
+                                            class="form-control mb-2" placeholder="Repetitions">
+                                        <input id="add" type="submit" value="Add Exercise"
+                                            class="btn btn-success btn-block">
+                                    </form>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-lg-6">
+                            {% if exercises %}
+                            <div class="card shadow text-white mb-5" style="background-color: #4d13d1;">
+                                <h4 class="card-title text-center">Exercise Data</h4>
+                                <div class="card_body" style="height: 220px;overflow: scroll;">
+                                    <table class="table table-responsive-sm
+                     table-light table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Exercise</th>
+                                                <th scope="col">Weight</th>
+                                                <th scope="col">SetNumber</th>
+                                                <th scope="col">Repititions</th>
+                                                <th scope="col">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for exercise in exercises %}
+                                            <tr>
+                                                <th>{{ exercise.name }}</th>
+                                                <td>{{ exercise.weight|floatformat }} Kgs</td>
+                                                <td>{{ exercise.sets }}</td>
+                                                <td>{{ exercise.repetitions|floatformat}} reps</td>
+
+                                                {% if workout.completed == False %}
+                                                <td>
+                                                    <form id="delete-exercise-form"
+                                                        action="/workout/{{ workout.id }}/exercise" method="GET"
+                                                        class="p-0">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" id="exercise_id" name="exercise_id"
+                                                            value="{{ exercise.id }}">
+                                                        <input type="hidden" id="workout_id" name="workout_id"
+                                                            value="{{ workout.id }}">
+                                                        <button id="delete-exercise" type="submit"
+                                                            onclick="return confirm('Delete this Exercise ?')"
+                                                            class="btn btn-link btn-lg p-0"><i
+                                                                class="fa fa-remove mx-1 delete-exercise"></i></button>
+                                                    </form>
+                                                </td>
+                                                {% endif %}
+                                                {% if workout.completed == True %}
+                                                <td>
+                                                    <button id="delete-exercise" type="submit"
+                                                        class="btn btn-link disabled btn-lg p-0"><i
+                                                            class="fa fa-remove mx-1 delete-exercise"></i></button>
+                                                    </form>
+                                                </td>
+                                                {% endif %}
+
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <!-- {% if workout.completed == False %}
+                <div class="card shadow add-exercise mb-2" style="background-color: #4d13d1;">
+                    <div class="card-body">
+                        <form id="exercise-form" class="" action="/workout/{{ workout.id }}/exercise" method="POST">
+                            {% csrf_token %}
+
+                            
+                            <div class="form-row">
+                                <div class="form-group col-sm">
+                                    <input id="name" type="text" name="name" required class="form-control"
+                                        placeholder="Exercise">
+                                </div>
+                                
+                                <div class="form-group col-sm">
+                                    <input id="weight" type="number" min="0.00" step="0.5" name="weight"
+                                        class="form-control" placeholder="Weight (Kgs)">
+                                </div>
+                               
+                                <div class="form-group col-sm">
+                                    <input id="sets" type="number" min="1" step="1" name="sets" class="form-control"
+                                        placeholder="Set number">
+                                </div>
+                                
+                                <div class="form-group col-sm">
+                                    <input id="repetitions" type="number" min="0" step="1" name="repetitions"
+                                        class="form-control" placeholder="Repetitions">
+                                </div>
+                                <div class="form-group col-sm">
+                                    <input id="add" type="submit" value="Add Exercise"
+                                        class="btn btn-success btn-block">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% endif %} -->
+
+                <!-- Exercises Table -->
+
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI Report</title>
+    <style>
+        *{
+            font-size: 15px;
+        }
+        table{
+            table-layout: fixed;
+            width: 100%;
+            border: 1px solid black;
+        }
+        table th {
+            text-align: left;
+            padding: 3px;
+            padding-bottom: 0;
+            border: 1px solid white;
+        }
+        table td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 3px;
+            padding-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div style="text-align: center;">
+        <h2>FitnessTracker</h2>
+        <hr>
+    </div>
+    <p>BMI REPORT : {{date}}</p>
+    <table>
+        <tr style="background-color: black; color: white;">
+            <th>S No</th>
+            <th>BMI</th>
+            <th>WEIGHT</th>
+            <th>DATE</th>
+        </tr>
+        {% for data in report %}
+        <tr>
+            <td style="width: 10%;">{{forloop.counter}}</td>
+            <td style="width: 30%;">{{data.bmi}}</td>
+            <td style="width: 30%;">{{data.weight}}</td>
+            <td style="width: 30%;">{{data.date}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

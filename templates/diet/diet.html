@@ -1,0 +1,354 @@
+{% extends "diet/base.html" %}
+
+{% block content %}
+{% for message in messages %}
+{% if message.tags == 'info' %}
+<script>
+    window.onload = function () {
+        alert('{{message}}')
+    }
+</script>
+{% endif %}
+{% endfor %}
+<script>
+    var config = {
+      type: 'pie',
+      data: {
+        datasets: [{
+          data: [{{ data|safe }}, {{ data1|safe }}, {{ data2|safe }}],
+          backgroundColor: [
+              'red','green','blue',
+            ],
+          label: 'BMI'
+        }],
+        labels: [{{ labels|safe }}, {{ labels1|safe }}, {{ labels2|safe }}],
+      },
+      options: {
+        responsive: true,
+      }
+    };
+
+    var config1 = {
+      type: 'doughnut',
+      data: {
+        datasets: [{
+          data: [{{ data3|safe }}, {{ data4|safe }}, {{ data5|safe }}],
+          backgroundColor: [
+              'red','green','blue',
+            ],
+          label: 'BMI'
+        }],
+        labels: [{{ labels|safe }}, {{ labels1|safe }}, {{ labels2|safe }}],
+      },
+      options: {
+        responsive: true,
+      }
+    };
+
+    window.onload = function () {
+        var ctx = document.getElementById('myChart').getContext('2d');
+        window.myChart = new Chart(ctx, config);
+        var ctx1 = document.getElementById('myChart1').getContext('2d');
+        window.myChart1 = new Chart(ctx1, config1);
+    };
+
+</script>
+{% if user.is_authenticated %}
+<nav class="navbar sticky-top navbar-expand-lg navbar-dark" style="background-color: #4d13d1;">
+    <div class="container-fluid text-white">
+        <span class="navbar-brand mb-0 h1 text-white">FitnessTracker</span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+
+            <li class="nav-item">
+                <a class="nav-link " href="{% url 'workouts' %}">Workouts</a>
+            </li>
+            <a class="nav-item nav-link active" href="">Diet</a>
+            <a class="nav-item nav-link" href="{% url 'bmi' %}">BMI</a>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    {{user.username}}
+                </a>
+                <div class="dropdown-menu dropdown-menu-sm-right" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{% url 'logout' %}"
+                        onclick="return confirm('Are you sure you want to logout!')">Logout</a>
+                    <a class="dropdown-item" href="{% url 'change_password' %}">Update Password</a>
+                </div>
+            </li>
+
+        </div>
+    </div>
+</nav>
+{% else %}
+<nav class="navbar sticky-top navbar-expand justify-content-center navbar-light bg-dark mb-5">
+    <span class="navbar-brand mb-0 h1 text-primary">FitnessTracker</span>
+</nav>
+{% endif %}
+
+
+{% for message in messages %}
+{% if message.tags == 'success' %}
+<div class="container-fluid">
+    <div class="alert alert-info msg fade show mt-2" role="alert">{{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+<div class="container-fluid shadow">
+    <h3 class=" text-center text-uppercase mt-1" style="color: #4d13d1;">Your Diet Details</h3>
+    <div class="row mt-3 mb-3">
+        <div class="col-lg-3 col-sm-12 mb-2">
+            <div class="card shadow item-card text-white card-block" style="background:#4d13d1 ;">
+                <h5 class="card-title mt-3 mb-3 text-center">Total Calories Consumed Today</h5>
+                <p class="card-text text-center">{{ kcal_total }} Calories</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-12 mb-2">
+            <div class="card shadow item-card text-white card-block" style="background:#4d13d1;">
+                <h5 class="card-title mt-3 mb-3 text-center">Total Calories Left For Today</h5>
+                <p class="card-text text-center">{{ kcal_left }} Calories</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-12 mb-2">
+            <div class="card shadow item-card text-white card-block" style="background:#4d13d1 ;">
+                <h5 class="card-title mt-3 mb-3 text-center">Calories Goal For Today</h5>
+                <p class="card-text text-center">{{ kcal_goal }} Calories</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-12 mb-2">
+            <div class="card shadow item-card justify-content-center card-block" style="background:#4d13d1;">
+                <h6 class="card-title mt-3 mb-3 text-white text-center">Update Calorie Today's Goal</h6>
+
+                <form action="{% url 'goal_change' %}" method="post">
+                    {% csrf_token %}
+                    <div class="row m-1">
+                        <div class="col-6">
+                            <input class="form-control" name="goal" placeholder="Target Calories" type="number" min="0"
+                                required />
+                        </div>
+                        <div class="col-6">
+                            <button type="submit" class="btn text-white" style="background-color: #E8BD0D;" value="Set">Update</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="container-fluid text-white">
+    <h3 class="text-center text-uppercase" style="background: #4d13d1;">Today's Progress</h3>
+    <div class="progress shadow">
+        <div class="progress-bar bg-success" role="progressbar" style="width: {{ progress }}%;"
+            aria-valuenow=" {{ progress }}" aria-valuemin="0" aria-valuemax="100"> {{ progress }}%
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid mb-3">
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header text-white" style="background: #4d13d1;">
+                    <h5 class="modal-title" id="exampleModalLabel">Calculate Your Calorie Needs</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        <div class="form-check">
+                            Input Gender:<br>
+                            <input class="form-check-input" type="radio" name="gender" value="0" required>
+                            Male <br>
+                            <input class="form-check-input" type="radio" name="gender" value="1"> Female
+                            <br>
+                        </div>
+                        <div class="form-group">
+                            Age:<br>
+                            <input class="form-control" name="age" placeholder="Age" type="number" min="0" max="120"
+                                required />
+                        </div>
+                        <div class="form-group">
+                            Weight in kgs:<br>
+                            <input class="form-control" name="kgs" placeholder="kgs" type="number" min="0" required />
+                        </div>
+                        <div class="form-group">
+                            Height in Cms:<br>
+                            <input class="form-control" name="cms" placeholder="cms" type="number" min="0"
+                                required />
+                        </div>
+                        <div class="form-check">
+                            How would you describe your activity?<br>
+                            <input class="form-check-input" type="radio" name="activity" value="1.2" required> Sedentary
+                            (little or no
+                            exercise)<br>
+                            <input class="form-check-input" type="radio" name="activity" value="1.375"> Lightly active
+                            (light exercise/sports
+                            1-3
+                            days/week)<br>
+                            <input class="form-check-input" type="radio" name="activity" value="1.55"> Moderately active
+                            (moderate
+                            exercise/sports 3-5
+                            days/week)<br>
+                            <input class="form-check-input" type="radio" name="activity" value="1.725"> Very active
+                            (hard exercise/sports 6-7
+                            days a
+                            week)<br>
+                            <input class="form-check-input" type="radio" name="activity" value="1.9"> Extra active (very
+                            hard exercise/sports
+                            & physical
+                            job
+                            or
+                            professional athlete)<br>
+                        </div>
+                        <button id="calcResults" name="calc" type="submit" class="btn text-white" style="background-color: #E8BD0D;"> Calculate
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <h3 class="text-center"><button type="button" data-toggle="modal" data-target="#exampleModal" href="#"
+        class="btn text-white" style="background-color: #E8BD0D;">Click Here Calculate Your Calorie Needs</button></h3>
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card mb-2 shadow">
+                <div class="card-header text-white" style="background: #4d13d1;">
+                    Consumed a Fooditem ?
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'create_meal' %}" method="post">
+                        {% csrf_token %}
+                        <input class="form-control mb-2" name="name" placeholder="What is it? (name)" type="text"
+                            required />
+                        <input class="form-control mb-2" name="carbs" placeholder="Carbohydrates Amount" min="0"
+                            type="number" required />
+                        <input class="form-control mb-2" name="protein" placeholder="Protein Amount" min="0"
+                            type="number" required />
+                        <input class="form-control mb-2" name="fats" placeholder="Fats Amount" min="0" type="number"
+                            required />
+                        <input class="form-control mb-2" name="kcal" placeholder="How many calories?" min="0"
+                            type="number" required />
+                        <button type="submit" class="btn text-white" style="background-color: #E8BD0D;" name="add" value="submit">Add</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card mb-2 shadow">
+                <div class="card-header text-white" style="background: #4d13d1;">
+                    Food Consumed Today
+                </div>
+                <div class="card-body" style="height: 300px;overflow: scroll;">
+                    {% if meals %}
+                    <table class="table table-responsive-sm
+                     table-light table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Calories</th>
+                                <th scope="col">Carbohydrates</th>
+                                <th scope="col">Protein</th>
+                                <th scope="col">Fats</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for meal in meals %}
+                            <tr>
+                                <th>{{ meal.name }}</th>
+                                <td>{{ meal.kcal }}</td>
+                                <td>{{ meal.carbs }}</td>
+                                <td>{{ meal.protein }}</td>
+                                <td>{{ meal.fats }}</td>
+                            </tr>
+                            {% endfor %}        
+                        </tbody>
+                    </table>              
+                    {% else %}
+                    <p>No fooditems consumed till now.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow mb-2 bg-white">
+                <div class="card-header text-white" style="background: #4d13d1;">
+                    Macronutrients Consumed Today
+                </div>
+                <div class="card-body text-white">
+                    <canvas id="myChart" width="400" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card shadow mb-1 bg-white">
+                <div class="card-header text-white" style="background: #4d13d1;">
+                    Food Consumed In Last Seven Days
+                </div>
+                <div class="card-body text-white" style="height: 400px;overflow: scroll;">
+                    {% if seven_days_meals %}
+                    <table class="table table-responsive-sm
+                     table-light table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Calories</th>
+                                <th scope="col">Carbohydrates</th>
+                                <th scope="col">Protein</th>
+                                <th scope="col">Fats</th>
+                                <th scope="col">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for meal in seven_days_meals %}
+                            <tr>
+                                <th>{{ meal.name }}</th>
+                                <td>{{ meal.kcal }}</td>
+                                <td>{{ meal.carbs }}</td>
+                                <td>{{ meal.protein }}</td>
+                                <td>{{ meal.fats }}</td>
+                                <td>{{ meal.date }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card shadow mb-1 bg-white">
+                <div class="card-header text-white" style="background: #4d13d1;">
+                    Macronutrients Consumed In Last Seven Days
+                </div>
+                <div class="card-body text-white">
+                    <canvas id="myChart1"  width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container mt-3 mb-2 text-white">
+    <h3 class="text-center">
+        <a href="{% url 'generate-diet-pdf' %}" target="_blank" class="btn btn-success">Download Report</a>
+        <a href="{% url 'generate-thirty-days-pdf' %}" target="_blank" class="btn btn-success">30 Day's Report</a>
+    </h3>
+</div>
+{% endblock content %}

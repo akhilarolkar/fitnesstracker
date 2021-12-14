@@ -1,0 +1,181 @@
+{% extends "bmi/base.html" %}
+
+{%block scripts%}
+<script>
+    var config = {
+      type: 'line',
+      data: {
+        datasets: [{
+          data: {{ data|safe }},
+          backgroundColor: "#33AEEF",
+          label: 'BMI'
+        }],
+        labels: {{ labels|safe }}
+      },
+      options: {
+        responsive: true
+      }
+    };
+
+    var config1 = {
+      type: 'bar',
+      data: {
+        datasets: [{
+          data: {{ data1|safe }},
+          backgroundColor: "#FF5733",
+          label: 'WEIGHT'
+        }],
+        labels: {{ labels1|safe }}
+      },
+      options: {
+        responsive: true
+      }
+    };
+
+    window.onload = function () {
+        var ctx = document.getElementById('myChart').getContext('2d');
+        window.myChart = new Chart(ctx, config);
+        var ctx1 = document.getElementById('myChart1').getContext('2d');
+        window.myChart1 = new Chart(ctx1, config1);
+    };
+</script>
+
+{%endblock scripts%} 
+{% block content %}
+{% if user.is_authenticated %}
+<nav class="navbar sticky-top navbar-expand-lg navbar-dark" style="background-color: #4d13d1;">
+    <div class="container-fluid text-white">
+        <span class="navbar-brand mb-0 h1 text-white">FitnessTracker</span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+            <a class="nav-item nav-link" href="{% url 'workouts' %}">
+                Workouts
+            </a>
+            <a class="nav-item nav-link" href="{% url 'diet' %}">Diet</a>
+            <a class="nav-item nav-link active" href="">BMI</a>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    {{user.username}}
+                </a>
+                <div class="dropdown-menu dropdown-menu-sm-right" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{% url 'logout' %}"
+                        onclick="return confirm('Are you sure you want to logout!')">Logout</a>
+                    <a class="dropdown-item" href="{% url 'change_password' %}">Update Password</a>
+                </div>
+            </li>
+
+        </div>
+    </div>
+</nav>
+{% endif %}
+<h3 class="text-center text-uppercase mt-1" style="color: #4d13d1;">Your BMI Details</h3>
+<h3 class="text-center"><button type="button" data-toggle="modal" data-target="#exampleModal" href="#"
+        class="btn text-white" style="background-color: #E8BD0D;">Calculate Your BMI</button></h3>
+<div class="container-fluid">
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header text-white" style="background-color: #4d13d1;">
+                    <h5 class="modal-title" id="exampleModalLabel">Calculate BMI</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="height">Height</label>
+                            <input type="text" class="form-control" name="height" id="height"
+                                placeholder="Enter Height in Meters." required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="weight">Weight</label>
+                            <input type="text" class="form-control" name="weight" id="weight"
+                                placeholder="Enter Weight in Kgs." required>
+                        </div>
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="save" value="on" checked='checked'
+                                id="">
+                            <label for="" class="form-check-label">Save it.</label>
+                        </div>
+
+                        <button type="submit" class="btn text-white" style="background-color: #E8BD0D;">Calculate Bmi</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row  w-100 ml-0 ">
+
+        {% if bmi %}
+        <div class="text-center col-sm-12 w-100">
+            <div class="card mt-3 mb-2">
+                <div class="card-header text-white"
+                style="background-color: #4d13d1;">
+                    RESULT
+                </div>
+                <div class="card-body">
+                    <p class="text-dark bg-white">Your BMI = {{bmi}} kg/m2 <br> Body State: {{state}}</p>
+                    <div class="progress">
+                        <div class="progress-bar bg-danger" style="width: 32%">
+                            Underweight
+                        </div>
+                        <div class="progress-bar bg-success" style="width: 30%">
+                            Normal
+                        </div>
+                        <div class="progress-bar bg-warning" style="width: 30%">
+                            Overweight
+                        </div>
+                        <div class="progress-bar bg-danger" style="width: 30%">
+                            Obesity
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row  w-100 ml-0 mt-3">
+        <div class="col-sm-6 w-100">
+            <div class="card shadow mt-3 mb-3">
+                <div class="card-header text-white"
+                style="background-color: #4d13d1; height: 50%;">
+                    BMI DATA
+                </div>
+                <div class="card-body text-white">
+                    <canvas id="myChart" width="400" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 w-100">
+            <div class="card shadow mt-3 mb-3">
+                <div class="card-header text-white"
+                style="background-color: #4d13d1;">
+                    BODY WEIGHT DATA
+                </div>
+                <div class="card-body text-white">
+                    <canvas id="myChart1" width="400" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-3 mb-2 text-white">
+    <h3 class="text-center">
+        <a href="{% url 'generate-pdf' %}" target="_blank" class="btn btn-success">Download BMI Report</a>
+    </h3>
+</div>
+{% endblock content %}

@@ -1,0 +1,148 @@
+{% extends "workout/base.html" %}
+{% block content %}
+{% for message in messages %}
+{% if message.tags == 'info' %}
+<script>
+    window.onload = function () {
+        alert('{{message}}')
+    }
+</script>
+{% endif %}
+{% endfor %}
+{% if user.is_authenticated %}
+<nav class="navbar sticky-top navbar-expand-lg navbar-dark" style="background-color: #4d13d1;">
+    <div class="container-fluid text-white">
+        <span class="navbar-brand mb-0 h1 text-white">FitnessTracker</span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+
+            <li class="nav-item">
+                <a class="nav-link active" href="">Workouts</a>
+            </li>
+            <a class="nav-item nav-link " href="{% url 'diet' %}">Diet</a>
+            <a class="nav-item nav-link" href="{% url 'bmi' %}">BMI</a>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    {{user.username}}
+                </a>
+                <div class="dropdown-menu dropdown-menu-sm-right" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{% url 'logout' %}"
+                        onclick="return confirm('Are you sure you want to logout!')">Logout</a>
+                    <a class="dropdown-item" href="{% url 'change_password' %}">Update Password</a>
+                </div>
+            </li>
+
+        </div>
+    </div>
+</nav>
+{% else %}
+<nav class="navbar sticky-top navbar-expand justify-content-center navbar-light bg-dark mb-5">
+    <span class="navbar-brand mb-0 h1 text-primary">FitnessTracker</span>
+</nav>
+{% endif %}
+
+<div class="container-fluid">
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header text-white" style="background-color:  #4d13d1;">
+                    <h5 class="modal-title" id="exampleModalLabel">Create Workout</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="workout-form" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input id="name" type="text" name="name" required class=" form-control" placeholder="Name">
+                        </div>
+                        <div class="form-group">
+                            <input id="description" type="text" name="description" class=" form-control"
+                                placeholder="Description">
+                        </div>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button id="add" type="submit" value="Add" class="btn btn-primary">Add</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class=" my-2">
+        <div class="container-fluid">
+            <h3 class="text-center text-uppercase mt-1" style="color: #4d13d1;">Your Workouts</h3>
+            <h3 class="text-center"><button type="button" data-toggle="modal" data-target="#exampleModal" href="#"
+                    class="btn btn-success">Create a Workout</button></h3>
+            <div class="row">
+                <!-- Perform django if check here for recent_workouts-->
+                {% if page_obj %}
+                <!-- If so, repeat cards here: -->
+                {% for workout in page_obj %}
+                <div class="col-sm-4 mt-1 mb-3">
+                    <div class="card shadow border-dark text-white bg-light mb-1">
+                        <div class="card-header" style="background-color: #4d13d1;">
+                            <h4 class="text-center text-uppercase">{{workout.name}}</h4>
+                        </div>
+                        <div class="card-body text-center">
+                            <p class="card-text text-dark">Description: {{workout.description}} </p>
+                            <h6 class="card-subtitle mb-2 text-muted">Date: {{workout.created_at | date }}</h6>
+                            {% if workout.completed == True %}
+                            <p class="card-text text-dark"> Status:
+                                <small class="text-success">COMPLETED</small>
+                            </p>
+                            {% endif %}
+                            {% if workout.completed == False %}
+                            <p class="card-text text-dark"> Status:
+                                <small class="text-danger">NOT COMPLETED</small>
+                            </p>
+                            {% endif %}
+                            <p class="card-text text-center">
+                                {% if workout.completed == True %}
+                                <a href="{% url 'workout' id=workout.id %}" class="btn btn-success">View</a>
+                                {% endif %}
+                                {% if workout.completed == False %}
+                                <a href="{% url 'workout' id=workout.id %}" class="btn btn-success">Edit</a>
+                                {% endif %}
+                                <a href="{% url 'deleteworkout' id=workout.id %}"
+                                    onclick="return confirm('Are you sure you want to Delete this Workout ?')"
+                                    class="btn btn-danger">Delete</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% else %}
+                <div class="col-lg-12 mt-1 pb-4">
+                    <div class="card text-white mb-4">
+                        <div class="card-body text-center" style="background-color: #4d13d1;">
+                            <h4 class="card-title">You don't have any workouts yet.</h4>
+                            <h6 class="card-subtitle mb-2 text-muted">There's no time like the present! 💪</h6>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mb-4 text-center">
+
+            {% if page_obj.has_previous %}
+            <a class="btn btn-secondary text-white" href="?page={{page_obj.previous_page_number}}">Previous Page</a>
+            {% endif %}
+            <!-- <span class="text-white">{{page_obj.number}}</span> -->
+            {% if page_obj.has_next %}
+            <a class="btn btn-secondary text-white" href="?page={{page_obj.next_page_number}}">Next Page</a>
+            {% endif %}
+        </div>
+    </section>
+    <hr class="bg-white">
+</div>
+{% endblock content %}
