@@ -173,9 +173,37 @@
     </div>
 </div>
 
-<div class="container mt-3 mb-2 text-white">
-    <h3 class="text-center">
-        <a href="{% url 'generate-pdf' %}" target="_blank" class="btn btn-success">Download BMI Report</a>
-    </h3>
+<div class="container-fluid mt-3 mb-2 ">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow mb-1 bg-white">
+                <div class="card-header text-white" style="background: #4d13d1;">
+                    Generate BMI Report
+                </div>
+                <div class="card-body" style="height:auto;">
+                    <form method="POST" action="{% url 'generate-pdf' %}">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="datefrom">FROM DATE</label>
+                                    <input type="date" class="form-control" id="datefrom" name="datefrom" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="dateto">TO DATE</label>
+                                    <input type="date" class="form-control" id="dateto" name="dateto" required>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success">Download Report</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock content %}

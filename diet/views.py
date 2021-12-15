@@ -11,11 +11,6 @@ from datetime import timedelta
 from django.contrib import messages
 from diet.utils import render_to_pdf
 
-def base(request):
-	context = {
-		"user": request.user,
-	}
-	return render(request, "diet/base.html", context)
 
 def index(request):
 	daily =None
@@ -138,76 +133,33 @@ def goal_change(request):
 		return redirect('diet')
 	return render(request, "diet/diet.html", context)
 
-def generate_pdf(request):
+def diet_report_pdf(request):
 	template_name = "diet/report-pdf.html"
 	profile = Profile.objects.get(user=request.user)
-	goal_cals = profile.goal_cals
 	date = datetime.date.today()
-	#Report for the day
-	reports = Meal.objects.filter(userfk=request.user, date=datetime.date.today()).order_by('-date')
-	kcal = Meal.objects.filter(date=datetime.date.today(), userfk=request.user).aggregate(
-		Sum('kcal'))['kcal__sum'] or 0.00
-	carbs = Meal.objects.filter(userfk=request.user, date=datetime.date.today()).aggregate(
-		Sum('carbs'))['carbs__sum'] or 0.00
-	protein = Meal.objects.filter(userfk=request.user, date=datetime.date.today()).aggregate(
-		Sum('protein'))['protein__sum'] or 0.00
-	fats = Meal.objects.filter(userfk=request.user, date=datetime.date.today()).aggregate(
-		Sum('fats'))['fats__sum'] or 0.00
-	#Report for Last 7 days
-	sevendaysreport = Meal.objects.filter(userfk=request.user, date__gte=datetime.date.today()-timedelta(days=7)).order_by('-date')
-	sevendayskcal = Meal.objects.filter(userfk=request.user, date__gte=datetime.date.today()-timedelta(days=7)).aggregate(
-		Sum('kcal'))['kcal__sum'] or 0.00
-	sevendayscarbs = Meal.objects.filter(userfk=request.user, date__gte=datetime.date.today()-timedelta(days=7)).aggregate(
-		Sum('carbs'))['carbs__sum'] or 0.00
-	sevendaysprotein = Meal.objects.filter(userfk=request.user, date__gte=datetime.date.today()-timedelta(days=7)).aggregate(
-		Sum('protein'))['protein__sum'] or 0.00
-	sevendaysfats = Meal.objects.filter(userfk=request.user, date__gte=datetime.date.today()-timedelta(days=7)).aggregate(
-		Sum('fats'))['fats__sum'] or 0.00
-
+	if request.method=='POST':
+		datefrom=request.POST['datefrom']
+		dateto=request.POST['dateto']
+		reports = Meal.objects.filter(userfk=request.user, date__lte=dateto, date__gte=datefrom).order_by('-date')
+		kcal = Meal.objects.filter(userfk=request.user, date__lte=dateto, date__gte=datefrom).aggregate(
+			Sum('kcal'))['kcal__sum'] or 0.00
+		carbs = Meal.objects.filter(userfk=request.user, date__lte=dateto, date__gte=datefrom).aggregate(
+			Sum('carbs'))['carbs__sum'] or 0.00
+		protein = Meal.objects.filter(userfk=request.user, date__lte=dateto, date__gte=datefrom).aggregate(
+			Sum('protein'))['protein__sum'] or 0.00
+		fats = Meal.objects.filter(userfk=request.user, date__lte=dateto, date__gte=datefrom).aggregate(
+			Sum('fats'))['fats__sum'] or 0.00
 	return render_to_pdf(
 		template_name,
 		{
 			"profile":profile,
 			"date":date,
-			"goal_cals":goal_cals,
-
-			"report":reports,
+			"datefrom":datefrom,
+			"dateto":dateto,
+			"reports":reports,
 			"kcal":kcal,
 			"carbs":carbs,
 			"protein":protein,
 			"fats":fats,
-			
-			"sevendaysreport":sevendaysreport,
-			"sevendayskcal":sevendayskcal,
-			"sevendayscarbs":sevendayscarbs,
-			"sevendaysprotein":sevendaysprotein,
-			"sevendaysfats":sevendaysfats,
-		}
-	)
-def generate_thirty_days_pdf(request):
-	template_name = "diet/thirtydaysreport.html"
-	profile = Profile.objects.get(user=request.user)
-	date = datetime.date.today()
-
-	thirtydaysreport = Meal.objects.filter(userfk=request.user, date__gte=datetime.date.today()-timedelta(days=30)).order_by('-date')
-	thirtydayskcal = Meal.objects.filter(userfk=request.user, date__gte=datetime.date.today()-timedelta(days=30)).aggregate(
-		Sum('kcal'))['kcal__sum'] or 0.00
-	thirtydayscarbs = Meal.objects.filter(userfk=request.user, date__gte=datetime.date.today()-timedelta(days=30)).aggregate(
-		Sum('carbs'))['carbs__sum'] or 0.00
-	thirtydaysprotein = Meal.objects.filter(userfk=request.user, date__gte=datetime.date.today()-timedelta(days=30)).aggregate(
-		Sum('protein'))['protein__sum'] or 0.00
-	thirtydaysfats = Meal.objects.filter(userfk=request.user, date__gte=datetime.date.today()-timedelta(days=30)).aggregate(
-		Sum('fats'))['fats__sum'] or 0.00
-
-	return render_to_pdf(
-		template_name,
-		{
-			"profile":profile,
-			"date":date,
-			"thirtydaysreport":thirtydaysreport,
-			"thirtydayskcal":thirtydayskcal,
-			"thirtydayscarbs":thirtydayscarbs,
-			"thirtydaysprotein":thirtydaysprotein,
-			"thirtydaysfats":thirtydaysfats,
 		}
 	)

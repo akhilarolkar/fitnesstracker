@@ -63,13 +63,17 @@ def bmi(request, template_name='bmi/bmi.html'):
 def generate_pdf(request):
 	template_name = "bmi/report-pdf.html"
 	date = datetime.date.today()
-	reports = Bmi.objects.all().filter(user = request.user).order_by('-date')
-
+	if request.method=='POST':
+		datefrom=request.POST['datefrom']
+		dateto=request.POST['dateto']
+		reports = Bmi.objects.filter(user=request.user, date__lte=dateto, date__gte=datefrom).order_by('-date')
 	return render_to_pdf(
 		template_name,
 		{
 			"report":reports,
 			"date":date,
+			"datefrom":datefrom,
+			"dateto":dateto,
 		}
 	)
 	# buff = io.BytesIO()
