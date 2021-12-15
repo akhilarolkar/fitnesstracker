@@ -76,30 +76,4 @@ def generate_pdf(request):
 			"dateto":dateto,
 		}
 	)
-	# buff = io.BytesIO()
-	# p = canvas.Canvas(buff, pagesize=A4, bottomup=0)
-	# p.drawString(260,30,"BMI REPORT")
-	# p.line(0,48,1000,48)
-	# p.line(0,46,1000,46)
 
-	# textob = p.beginText()
-	# textob.setTextOrigin(inch, inch)
-	# textob.setFont("Helvetica",14)
-	# # lines = [
-	# # 	"line number 1",
-	# # 	"line number 2",
-	# # 	"line number 3",
-	# # 	"line number 4",
-	# # ]
-	# queryset = Bmi.objects.all().filter(user = request.user)
-	# lines = []
-	# for qr in queryset:
-	# 	lines.append(f'Your BMI Recorded on Date:{qr.date} is {qr.bmi}')
-	# for line in lines:
-	# 	textob.textLine(line)
-	# p.drawText(textob)
-	# p.setTitle(f'bmi report')
-	# p.showPage()
-	# p.save()
-	# buff.seek(0)
-	# return FileResponse(buff, filename='Report.pdf')
