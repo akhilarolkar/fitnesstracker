@@ -53,6 +53,7 @@
                 <th>FATS</th>
                 <th>DATE</th>
             </tr>
+            {% if reports %}
             {% for data in reports %}
             <tr>
                 <td style="width: 10%;">{{forloop.counter}}</td>
@@ -64,6 +65,9 @@
                 <td style="width: 20%;">{{data.date}}</td>
             </tr>
             {% endfor %}
+            {% else%}
+            <p>No data to show</p>
+            {% endif %}
         </table>
     </div>
     <hr>
