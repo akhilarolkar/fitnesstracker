@@ -125,17 +125,17 @@
         </div>
         <div class="col-lg-3 col-sm-12 mb-2">
             <div class="card shadow item-card justify-content-center card-block" style="background:#4d13d1;">
-                <h6 class="card-title mt-3 mb-3 text-white text-center">Update Calorie Today's Goal</h6>
+                <h6 class="card-title mb-2 text-white text-center">Update Calorie Today's Goal</h6>
 
                 <form action="{% url 'goal_change' %}" method="post">
                     {% csrf_token %}
-                    <div class="row m-1">
-                        <div class="col-6">
+                    <div class="row m-2">
+                        <div class="input-group">
                             <input class="form-control" name="goal" placeholder="Target Calories" type="number" min="0"
                                 required />
-                        </div>
-                        <div class="col-6">
-                            <button type="submit" class="btn text-white" style="background-color: #E8BD0D;" value="Set">Update</button>
+                                <div class="input-group-append">
+                                    <button type="submit" class="btn text-white" style="background-color: #E8BD0D;" value="Set">Update</button>
+                                </div>
                         </div>
                     </div>
                 </form>
@@ -235,9 +235,18 @@
                     Consumed a Fooditem ?
                 </div>
                 <div class="card-body">
+                    <form action="" method="post">
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" placeholder="Search Food Items" aria-describedby="basic-addon2">
+                            <div class="input-group-append">
+                              <button type="submit" class="btn btn-success">Search</button>
+                            </div>
+                          </div>
+                    </form>
+                    <h6>Enter Food Details</h6>
                     <form action="{% url 'create_meal' %}" method="post">
                         {% csrf_token %}
-                        <input class="form-control mb-2" name="name" placeholder="What is it? (name)" type="text"
+                        <input class="form-control mb-2" name="name" placeholder="Food Name (eg. 100g Chicken)" type="text"
                             required />
                         <input class="form-control mb-2" name="carbs" placeholder="Carbohydrates Amount" min="0"
                             type="number" required />
@@ -249,12 +258,6 @@
                             type="number" required />
                         <button type="submit" class="btn text-white" style="background-color: #E8BD0D;" name="add" value="submit">Add</button>
                     </form>
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Search Food Items" aria-describedby="basic-addon2">
-                        <div class="input-group-append">
-                          <button type="submit" class="btn btn-success">Search</button>
-                        </div>
-                      </div>
                 </div>
             </div>
         </div>
