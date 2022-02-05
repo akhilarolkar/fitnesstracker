@@ -1,3 +1,4 @@
+import requests
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import HttpResponse
@@ -109,6 +110,29 @@ def index(request):
 
 
 def create_meal(request):
+	if request.method == 'POST' and 'search' in request.POST:
+		api_url = 'https://api.calorieninjas.com/v1/nutrition?query='
+		query = request.POST.get("foodname")
+		response = requests.get(api_url + query, headers={'X-Api-Key': 'Cxl1pxmvPmifLHPkGri4Lw==Je2A6iR8HKd93DLL'})
+		if response.status_code == requests.codes.ok:
+			food = response.json()['items'][0]['name']
+			cal = response.json()['items'][0]['calories']
+			carbs = response.json()['items'][0]['carbohydrates_total_g']
+			fats = response.json()['items'][0]['fat_total_g']
+			protein = response.json()['items'][0]['protein_g']
+			messages.success(request,f'{food} has {cal} calories, {carbs}g carbs, {fats}g fats, and {protein}g protein in it.')
+
+			
+		else:
+			messages.success(request,f'food not found')
+		# print("Food:",food)
+		# print("Calories:",cal,'g')
+		# print("Carbohydrates:",carbs,'g')
+		# print("Fats:",fats,'g')
+		# print("Protein:",protein,'g')
+		# return redirect('diet')
+		# return HttpResponseRedirect(reverse('diet', kwargs={'food':food}))
+	
 	if request.method == 'POST' and 'add' in request.POST:
 		try:
 			meal = Meal.objects.create(
@@ -123,7 +147,14 @@ def create_meal(request):
 			return redirect('diet')
 		except:
 			return redirect('diet')
-	return render(request, "diet/diet.html")
+	context = {
+		"food":food,
+		"cal":cal,
+		"carbs":carbs,
+		"fats":fats,
+		"protein":protein,
+	}
+	return render(request, "diet/diet.html",context)
 
 
 def goal_change(request):
