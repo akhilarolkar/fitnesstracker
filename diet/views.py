@@ -15,6 +15,12 @@ from diet.utils import render_to_pdf
 
 def index(request):
 	daily =None
+	food =None
+	cal =None
+	carbs =None
+	fats =None
+	protein =None
+	# message =None
 	# weekly =None
 	profile = Profile.objects.get(user=request.user)
 	date_now = datetime.date.today()
@@ -70,7 +76,7 @@ def index(request):
 		kcal_left = goal_cals
 	
 	progress = (int(kcal) / int(goal_cals)) * 100
-	if request.method == 'POST':
+	if request.method == 'POST' and 'calc' in request.POST:
 		gender = request.POST.get("gender")
 		age = request.POST.get("age")
 		kgs = request.POST.get("kgs")
@@ -81,10 +87,21 @@ def index(request):
 		elif gender == '1':
 			bmr = 447.539 + (9.247 * int(kgs)) + (3.098 * int(cms)) - (4.330 * int(age))
 		daily = bmr * float(activity)
-		print(bmr)
-		print(daily)
+		# print(bmr)
+		# print(daily)
 		messages.success(request,f'You need {daily} calories daily to maintain your body weight')
 		# weekly = daily * 7
+	if request.method == 'POST' and 'search' in request.POST:
+		api_url = 'https://api.calorieninjas.com/v1/nutrition?query='
+		query = request.POST.get("foodname")
+		response = requests.get(api_url + query, headers={'X-Api-Key': 'Cxl1pxmvPmifLHPkGri4Lw==Je2A6iR8HKd93DLL'})
+		if response.status_code == requests.codes.ok:
+			food = response.json()['items'][0]['name']
+			cal = response.json()['items'][0]['calories']
+			carbs = response.json()['items'][0]['carbohydrates_total_g']
+			fats = response.json()['items'][0]['fat_total_g']
+			protein = response.json()['items'][0]['protein_g']
+			# message = messages.info(request,f'{food} has {cal} calories, {carbs}g carbs, {fats}g fats, and {protein}g protein in it.')
 	context = {
 		"user": request.user,
 		"date": datetime.date.today(),
@@ -104,35 +121,18 @@ def index(request):
 		'data3' : data3,
 		'data4' : data4,
 		'data5' : data5,
+		"food":food,
+		"cal":cal,
+		"carbs":carbs,
+		"fats":fats,
+		"protein":protein,
+		# "message":message,
 		# 'weekly': weekly,
 	}
 	return render(request, "diet/diet.html", context)
 
 
-def create_meal(request):
-	if request.method == 'POST' and 'search' in request.POST:
-		api_url = 'https://api.calorieninjas.com/v1/nutrition?query='
-		query = request.POST.get("foodname")
-		response = requests.get(api_url + query, headers={'X-Api-Key': 'Cxl1pxmvPmifLHPkGri4Lw==Je2A6iR8HKd93DLL'})
-		if response.status_code == requests.codes.ok:
-			food = response.json()['items'][0]['name']
-			cal = response.json()['items'][0]['calories']
-			carbs = response.json()['items'][0]['carbohydrates_total_g']
-			fats = response.json()['items'][0]['fat_total_g']
-			protein = response.json()['items'][0]['protein_g']
-			messages.success(request,f'{food} has {cal} calories, {carbs}g carbs, {fats}g fats, and {protein}g protein in it.')
-
-			
-		else:
-			messages.success(request,f'food not found')
-		# print("Food:",food)
-		# print("Calories:",cal,'g')
-		# print("Carbohydrates:",carbs,'g')
-		# print("Fats:",fats,'g')
-		# print("Protein:",protein,'g')
-		# return redirect('diet')
-		# return HttpResponseRedirect(reverse('diet', kwargs={'food':food}))
-	
+def create_meal(request):	
 	if request.method == 'POST' and 'add' in request.POST:
 		try:
 			meal = Meal.objects.create(
@@ -147,14 +147,7 @@ def create_meal(request):
 			return redirect('diet')
 		except:
 			return redirect('diet')
-	context = {
-		"food":food,
-		"cal":cal,
-		"carbs":carbs,
-		"fats":fats,
-		"protein":protein,
-	}
-	return render(request, "diet/diet.html",context)
+	return render(request, "diet/diet.html")
 
 
 def goal_change(request):

@@ -6,7 +6,7 @@ from django.dispatch import receiver
 
 class Meal(models.Model):
     userfk = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=15)
+    name = models.CharField(max_length=150)
     kcal = models.FloatField()
     carbs = models.FloatField()
     protein = models.FloatField()
