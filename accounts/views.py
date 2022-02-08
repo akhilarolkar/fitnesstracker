@@ -6,8 +6,14 @@ from django.views.decorators.cache import cache_control
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.sites.shortcuts import get_current_site  
+from django.utils.encoding import force_bytes, force_text  
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode  
+from django.template.loader import render_to_string  
+from accounts.tokens import account_activation_token   
+from django.core.mail import EmailMessage
+from django.contrib.auth import get_user_model
 # Create your views here.
-
 #view for homepage
 def home(request, template_name='accounts/home.html'):
 	if request.user.is_authenticated: #check if user is already loggedin from browser
@@ -26,18 +32,49 @@ def signup(request, template_name='accounts/signup.html'):
 
 		if User.objects.filter(username=username).exists(): #check if username is taken or not
 			messages.info(request,f'Username {username} already exists')
-			return redirect('signup')
+			return redirect('signu3p')
 
 		if password1 != password2: # check if 2 passwords matches or not
 			messages.error(request,'Passwords do not match. Please try again.')
 			return redirect('signup')
 			
 		user = User.objects.create_user(username,email,password1)
+		user.is_active = False
 		user.save() # create and save user into database
-		messages.info(request,f'Successfully SignedUp as {username}.Login into your account now!')
+		current_site = get_current_site(request)  
+		mail_subject = 'Activation link has been sent to your email id'  
+		message = render_to_string('accounts/acc_active_email.html', {  
+			'user': user,  
+			'domain': current_site.domain,  
+			'uid':urlsafe_base64_encode(force_bytes(user.pk)),  
+			'token':account_activation_token.make_token(user),  
+		})
+		to_email = email  
+		email = EmailMessage(
+			mail_subject, message, to=[to_email]  
+		)  
+		email.send()
+		messages.info(request,f'Please confirm your email address to complete the registration') 
 		return redirect('login') # after creating new user redirects to login page
 	
 	return render(request, template_name)
+
+#view for activating user account
+def activate(request, uidb64, token):  
+	User = get_user_model() 
+	try:  
+		uid = force_text(urlsafe_base64_decode(uidb64))  
+		user = User.objects.get(pk=uid)  
+	except(TypeError, ValueError, OverflowError, User.DoesNotExist):  
+		user = None  
+	if user is not None and account_activation_token.check_token(user, token):  
+		user.is_active = True  
+		user.save()
+		messages.info(request,f'Thankyou for confirming your email, You can login to your account now!')
+		return redirect('login')  
+	else:  
+		return HttpResponse('Activation link is invalid!')  
+
 
 # view for logging in registered users
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
