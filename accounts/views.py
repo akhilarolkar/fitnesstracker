@@ -32,7 +32,7 @@ def signup(request, template_name='accounts/signup.html'):
 
 		if User.objects.filter(username=username).exists(): #check if username is taken or not
 			messages.info(request,f'Username {username} already exists')
-			return redirect('signu3p')
+			return redirect('signup')
 
 		if password1 != password2: # check if 2 passwords matches or not
 			messages.error(request,'Passwords do not match. Please try again.')

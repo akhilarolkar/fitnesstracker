@@ -89,7 +89,7 @@ def index(request):
 		daily = bmr * float(activity)
 		# print(bmr)
 		# print(daily)
-		messages.success(request,f'You need {daily} calories daily to maintain your body weight')
+		messages.success(request,f'You need {daily} calories daily')
 		# weekly = daily * 7
 	if request.method == 'POST' and 'search' in request.POST:
 		api_url = 'https://api.calorieninjas.com/v1/nutrition?query='
