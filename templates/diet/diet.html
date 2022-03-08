@@ -106,25 +106,25 @@
 
 
 <div class="container-fluid shadow">
-    <h3 class=" text-center text-uppercase mt-1" style="color: #4d13d1;">Your Diet Details</h3>
+    <!-- <h3 class=" text-center text-uppercase mt-1" style="color: #4d13d1;">Your Diet Details</h3> -->
    
     <div class="row mt-3 mb-3">
         <div class="col-lg-3 col-sm-12 mb-2">
             <div class="card shadow item-card text-white card-block" style="background:#4d13d1 ;">
-                <h5 class="card-title mt-3 mb-3 text-center">Total Calories Consumed Today</h5>
-                <p class="card-text text-center">{{ kcal_total }} Calories</p>
+                <h6 class="card-header text-center">Total Calories Consumed Today</h6>
+                <p class="card-text bg-success text-center">{{ kcal_total }} </p>
             </div>
         </div>
         <div class="col-lg-3 col-sm-12 mb-2">
             <div class="card shadow item-card text-white card-block" style="background:#4d13d1;">
-                <h5 class="card-title mt-3 mb-3 text-center">Total Calories Left For Today</h5>
-                <p class="card-text text-center">{{ kcal_left }} Calories</p>
+                <h6 class="card-header text-center">Total Calories Left For Today</h6>
+                <p class="card-text bg-info text-center">{{ kcal_left }} </p>
             </div>
         </div>
         <div class="col-lg-3 col-sm-12 mb-2">
             <div class="card shadow item-card text-white card-block" style="background:#4d13d1 ;">
-                <h5 class="card-title mt-3 mb-3 text-center">Calories Goal For Today</h5>
-                <p class="card-text text-center">{{ kcal_goal }} Calories</p>
+                <h6 class="card-header text-center">Calories Goal For Today</h6>
+                <p class="card-text bg-primary text-center">{{ kcal_goal }} </p>
             </div>
         </div>
         <div class="col-lg-3 col-sm-12 mb-2">
@@ -154,7 +154,7 @@
 <div class="container-fluid text-white">
     <h3 class="text-center text-uppercase" style="background: #4d13d1;">Today's Progress</h3>
     <div class="progress shadow">
-        <div class="progress-bar bg-success" role="progressbar" style="width: {{ progress }}%;"
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: {{ progress }}%;"
             aria-valuenow=" {{ progress }}" aria-valuemin="0" aria-valuemax="100"> {{ progress }}%
         </div>
     </div>
