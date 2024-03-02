@@ -92,9 +92,9 @@ def index(request):
 		messages.success(request,f'You need {daily} calories daily')
 		# weekly = daily * 7
 	if request.method == 'POST' and 'search' in request.POST:
-		api_url = 'https://api.calorieninjas.com/v1/nutrition?query='
+		api_url = ''
 		query = request.POST.get("foodname")
-		response = requests.get(api_url + query, headers={'X-Api-Key': 'Cxl1pxmvPmifLHPkGri4Lw==Je2A6iR8HKd93DLL'})
+		response = requests.get(api_url + query, headers={'X-Api-Key': ''})
 		if response.status_code == requests.codes.ok:
 			food = response.json()['items'][0]['name']
 			cal = response.json()['items'][0]['calories']
