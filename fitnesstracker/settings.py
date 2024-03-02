@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '0+ii45ma5@t$iwf0nypkqro)y(+b-x8f*@0)$1ec!#izxa_pjn'
+SECRET_KEY = ''
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -83,11 +83,11 @@ WSGI_APPLICATION = 'fitnesstracker.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME':'users',
-        'USER':'root',
-        'PASSWORD':'imbons2001',
-        'HOST':'localhost',
-        'PORT':'3306',
+        'NAME':'',
+        'USER':'',
+        'PASSWORD':'',
+        'HOST':'',
+        'PORT':'',
     }
 }
 
@@ -139,4 +139,4 @@ EMAIL_HOST ='smtp.gmail.com'
 EMAIL_PORT =587
 EMAIL_USE_TLS=True
 EMAIL_HOST_USER='fitnesstracker09@gmail.com'
-EMAIL_HOST_PASSWORD='Fitness@tracker9'
+EMAIL_HOST_PASSWORD=''
